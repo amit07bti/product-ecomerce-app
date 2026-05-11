@@ -7,6 +7,8 @@ import com.jafer.product.reop.CategoryRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CategoryService {
 
@@ -21,6 +23,18 @@ public class CategoryService {
 
     }
     //get all categories
+    public List<CategoryDTO> getAllCategories() {
+        return categoryRepo.findAll().stream().map(CategoryMapper::toCategoryDTO).toList();
+    }
     //get category by id
+    public CategoryDTO getCategoryById(Long id) {
+        Category category=categoryRepo.findById(id)
+                .orElseThrow(()->new RuntimeException("Category not found!"));
+        return CategoryMapper.toCategoryDTO(category);
+    }
     //delete category
+    public String deleteCategory(Long id) {
+        categoryRepo.deleteById(id);
+        return "Category deleted successfully!";
+    }
 }
