@@ -1,10 +1,12 @@
 package com.jafer.product.controller;
 
 import com.jafer.product.dto.CategoryDTO;
+import com.jafer.product.exception.CategoryAlreadyExistException;
 import com.jafer.product.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,10 +24,11 @@ public class CategoryController {
 
     }
     //create category
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping
-    public ResponseEntity<CategoryDTO> createCategory(@RequestBody CategoryDTO categoryDTO) {
-        return  new ResponseEntity<>(categoryService.createCategory(categoryDTO), HttpStatus.CREATED);
-
+    public ResponseEntity<?> createCategory(@RequestBody CategoryDTO categoryDTO) {
+        CategoryDTO savedCategory= categoryService.createCategory(categoryDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
     }
     //get category by id
     @GetMapping("/{id}")
@@ -33,6 +36,7 @@ public class CategoryController {
         return categoryService.getCategoryById(id);
     }
     //delete category
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public String deleteCategory(@PathVariable Long id) {
         return categoryService.deleteCategory(id);

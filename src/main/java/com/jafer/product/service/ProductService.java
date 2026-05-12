@@ -1,6 +1,7 @@
 package com.jafer.product.service;
 
 import com.jafer.product.dto.ProductDTO;
+import com.jafer.product.exception.CategoryNotFoundException;
 import com.jafer.product.mapper.ProductMapper;
 import com.jafer.product.model.Category;
 import com.jafer.product.model.Product;
@@ -23,7 +24,7 @@ public class ProductService {
     public ProductDTO createProduct(ProductDTO productDTO) {
         //id,name,description,price,categoryId
         Category category = categoryRepo.findById(productDTO.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found! "));
+                .orElseThrow(() -> new CategoryNotFoundException("Category id:  "+productDTO.getCategoryId()+" found! "));
         //DTO to entity
         Product product = ProductMapper.toProductEntity(productDTO, category);
         product = productRepo.save(product);
@@ -36,6 +37,7 @@ public class ProductService {
     public List<ProductDTO> getAllProducts() {
         return productRepo.findAll().stream().map(ProductMapper::toProductDTO).toList();
     }
+    //get product by id
 
     public ProductDTO getProductById(Long id) {
         Product product = productRepo.findById(id)
@@ -59,6 +61,9 @@ public class ProductService {
 
     //delete product
     public String deleteProduct(Long id) {
+        if(!productRepo.existsById(id)){
+            throw new RuntimeException("Product not found!");
+        }
         productRepo.deleteById(id);
         return "Product deleted successfully!";
 
